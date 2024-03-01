@@ -1,0 +1,639 @@
+---
+title: <center>EDA for Global Youtube Dataset</center>
+subtitle: <center>Project 1 - CITS4009</center>
+graphics: yes
+author: <center><i>Yiren WANG(23794201)</i></center>
+date: <center>30-08-2023</center>
+encoding: UTF-8 
+output:
+  html_document:
+    includes:
+      before_body: style.html
+    code_folding: show
+runtime: shiny
+---
+
+### YouTube URL Link: <https://youtu.be/xSr2hn7mz3I>
+
+# Data basic Introduction
+
+The dataset analyzed in this project is called **Global Youtube Statistics 2023**, which can be obtained from *Kaggle* platform and it can be downloaded on [Kaggle.com](https://www.kaggle.com/datasets/nelgiriyewithana/global-youtube-statistics-2023).
+
+This dataset was collected by a Sri Lanka data scientist name Nidula Elgiriyewithana. In this data, he recorded plenty of data abut different aspexts of YouTube by collecting datasets from YouTube gients. This dateset provided includes information such as video views, upload frequency, country of origin, earnings.
+
+# Data preparation
+
+## Library loading and Set up
+
+*For the first step, clean the working environment.*
+
+```{r, eval=TRUE}
+rm(list = ls())
+```
+
+*Next, install and list all library packages that could be utilized in this analysis and load them.*
+
+```{r, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(gridExtra)
+library(dplyr)
+library(ggthemes)
+library(shiny)
+library(treemapify)
+library(maps)
+library(tidyverse)
+```
+
+*After that, configure the theme to enhance the virsual clarity of the chart.*
+
+```{r}
+ProjectTheme <- theme(
+  panel.background = element_rect(fill = "lightblue"),  
+  axis.title.x = element_text(size = 14),  
+  axis.title.y = element_text(size = 14),  
+  axis.text.x = element_text(size = 8),  
+  axis.text.y = element_text(size = 8),
+  plot.title = element_text(size = 17, colour = "darkblue"),  
+  text = element_text(size = 10, colour = "royalblue4"),
+  plot.margin=margin(10,30,10,30))
+```
+
+## Data import and Data description
+
+*Read the csv file, import the dataset into R and assign it to variable name 'YT'.*
+
+```{r}
+YT <- read.csv("youtube_UTF_8.csv", header = T, encoding = "UTF-8")
+```
+
+*Lets show the first ten observations in the data*
+
+```{r, eval=FALSE}
+head(YT, 10)
+```
+
+The first ten lines indicate that the entire dataset is a well-organized tidy data., where the data is structured into rows and columns. Furthermore, we can observe the presence of some large values as well as some missing data that marked as 'NA' and '0'.
+
+*Examine and analyze the dataset using 'str()' function.*
+
+```{r, eval=FALSE}
+str(YT)
+```
+
+The dataset contains 955 observations and 28 variables. These variables include a range of field, such as"subscribers," "Country," and "Latitude", and some of these variables have data that seems unrelated.Within these variables, there are 21 of them contains numerical data, and 7 of them are categorical data.
+
+*Summarize and analyze each column in the dataset by using 'summary()' function.*
+
+```{r, eval=FALSE}
+summary(YT)
+```
+
+# Data Cleaning
+
+*Calculate how many missing data in the table for each column.*
+
+```{r}
+apply(YT, 2, function(col) sum(is.na(col)))
+```
+
+Based on the result, we can see that most of these columns have either no missing values or very few missing values, such as subscribers, channel_type, and created_year.For these columns, we can consider deleting these values. However, there are 8 columns that have more than 100 missing values each, including Gross.tertiary.education.enrollment..., Unemployment.rate, Latitude, Urban_population, Population, Longitude, country_rank, and subscribers_for_last_30_days. Among these columns, subscribers_for_last_30_days has the highest number of missing values, reaching 337. In the summary, we can see there are six variables that they all have 123 missing values. Lets check whether they are the same.
+
+```{r}
+summary(
+  cbind(
+   Population = which(is.na(YT$Population)),
+   Education = which(is.na(YT$Gross.tertiary.education.enrollment....)),
+   unemployment = which(is.na(YT$Unemployment.rate)),
+   Urban = which(is.na(YT$Urban_population)),
+   Latitude = which(is.na(YT$Latitude)),
+   Longitude = which(is.na(YT$Longitude))
+  )
+)
+```
+
+Clearly, the data distribution of these missing values is the same. This indicates that these missing data can affect the accuracy and reliability of overall data analysis.
+
+*now delete row that has multiple missing values*
+
+```{r}
+miss_6_row <- apply(YT, 1, function(row) sum(is.na(row)) >= 8)
+YT <- YT[!miss_6_row, ]
+```
+
+For these rows that has missing values, we should not simply delete them when we see them, since we might remove other meaningful values in the same row. However, if there exist a row contains multuple missing values, we have reason to believe that this row is not suitable for data analysis, and we can delete it.
+
+# Data Visualization
+
+## Subscribers vs Country
+
+*Take out the columns we need and do the data cleaning.*
+
+```{r}
+# sum up the numbers of subscribers for each country
+YT_by_country <- aggregate(subscribers ~ Country, YT, FUN = function(x) sum(x, na.rm = TRUE))
+
+# Romove the rows that including missing value
+YT_by_country <- YT_by_country[YT_by_country!= "nan",]
+
+# re-order the table by the number of subscribers in desent order
+YT_country_sort <- arrange(YT_by_country, desc(subscribers))
+
+# select the top 15 countries
+YT_15_countries <- head(YT_country_sort, 15)
+```
+
+*Make the bar chart for the data.*
+
+```{r}
+# Create a bar plot using ggplot to visualize the numbers of subscribers for the top 15 countries.
+ggplot(YT_15_countries, aes(x = reorder(Country, subscribers), y = subscribers / 1e9)) +
+  geom_bar(stat = "identity", fill = "royalblue3", position = "identity") +
+  ggtitle("Numbers of Subscribers in Different Countries") +
+  geom_text(aes(label = subscribers / 1000000000), hjust = 0.3, vjust = 0.5, size = 3, color = "black") +
+  coord_flip() +
+  labs(x = "Country", y = "Subscribers (Billions)") + 
+  ProjectTheme +
+  theme(legend.key.size = unit(5, "mm")) + 
+  
+  # add the the average number of subscribers from all the countries in the chart
+  annotate("segment", x = 8.5, y = 1.8, xend = 8.5, yend = 1, arrow = arrow(length = unit(0.3, "cm"))) +
+  annotate("text", x = 8.5, y = 2.75, label = "the average number of subscribers \namoung all the country \nis 0.4573 billion people", size = 3 )
+```
+
+The bar chart is focusing on the number of subscribers in the top 15 countries. In this chart, we can see a even distribution among these countries, and there is a big gap between United States and India to the rest. It is easy to tell, since YouTube is the native company in the United States, and India has the most population in the world with the cheapest internet fee. The average number of subscribers across all countries is 457.3 million people, and there are only 7 countries that have numbers of subscribers over that numbers. However, What type of programs do these subscribers like to watch?
+
+## Numbers of Views vs Channel Types
+
+```{r}
+# sum up the number of video views for each channel type, and removing all the missing values
+YT_by_channel_type <- aggregate(video.views ~ channel_type, data = na.omit(YT), FUN = function(x) sum(subset(x, x != 0)))
+
+# Create a treemap plot based on the result
+ggplot(YT_by_channel_type, aes(area = video.views, fill = video.views / 1000000000000, label = channel_type)) +
+  geom_treemap() + 
+  geom_treemap_text(colour = "white", place = "centre", fontface = "italic", reflow = TRUE, alpha = 0.7) +
+  labs(fill = "Number of Viewers in Trillion") +
+  
+  # make the legend at the bottom
+  theme(legend.position = "bottom") +
+  theme(axis.text = element_blank(), 
+        axis.title = element_blank(), 
+        panel.grid = element_blank(),
+        plot.title = element_text(size = 15, hjust = 0.5)) +
+        ggtitle("Numbers of views in different types of videos") +
+  coord_fixed(ratio = 1)
+```
+
+The tree map chart above shows a great visual representation of the proportion of different channel types based on the numbers of views. Channel with has a great number of video views has a big percentage of area, such as music and entertainment, where those with small number of ideo views has a small area. It is easy to understand since music and entertainment program are usually short but bring happiness to audience, which is fit to the fast-paced lifestyle.But,How many channels in different types produce each time period?
+
+## Number of productions in different Channels by Year and by Month.
+
+*Select the columns we need for analyse and data cleaning.*
+
+```{r}
+# selecting columns channel_type and created_year from YT table
+channel_year <- YT[c("channel_type","created_year")]
+
+# group by channel_type and created_year, and count for each group
+channel_year_count <- channel_year %>%
+  group_by(channel_type, created_year) %>%
+  summarize(count = n(), .groups = "drop")
+
+# delete all the rows that has missing values
+channel_year_count <- na.omit(channel_year_count)
+
+# ignore the columns that has "1970" in the created_year, since there is no YouTube in 1970
+channel_year_count  <- channel_year_count [channel_year_count $created_year != 1970, ]
+
+# Change all the "nan" values in channel_type column to "others"
+channel_year_count <- mutate(channel_year_count, channel_type = ifelse(channel_type == "nan", "missing", channel_type))
+
+```
+
+*Make the line chart based on the table.*
+
+```{r}
+# creating a line plot using ggplots
+ggplot(channel_year_count, aes(x = created_year, y =count, color = channel_type)) +
+  geom_point() +
+  geom_line(na.rm = T) +
+  ggtitle("Number of Channels Created by Year") +
+  labs(x = "Years", y = "Number of Creations", color = "Channel") +
+  ProjectTheme
+```
+
+The line chart above shows the trend in the number of YouTube Channel Creation for the different channel types each year from 2005 (the year YouTube was founded) to current. In this chart, we can see that there is a noticeable difference in the number of creating for certain channel types, such as entertainment, music, and file. the number of creations for each channel type are different overtime, with incremental and decrements. However, there are specific time where all channel types either growth or decline. For example, in 2016, all channel types experienced growth. This can be explained by YouTube's acquisition by Google Co. in that year, which brought more attention and resources to YouTube. However, by 2022, due to the rise of short-video platforms like TikTok and Facebook, many YouTubers shifted their attention to other platforms. This trend caused a decline in the number of YouTube video creations across all channel type.
+
+Now lets see the number of program creating by each month.
+
+*Select the columns we need for analyse and data cleaning.*
+
+```{r}
+# selecting columns channel_type and created_year from YT table
+channel_month <- YT[c("channel_type","created_month")]
+
+# group by channel_type and created_month, and count for each group
+channel_month_count <- channel_month %>%
+  group_by(channel_type, created_month) %>%
+  summarize(count = n(), .groups = "drop")
+
+# delete all the rows that has missing values
+channel_month_count <- na.omit(channel_month_count)
+
+# delete the row that has missing value if the created_month column
+channel_month_count <- channel_month_count [channel_month_count$created_month != "nan", ]
+
+# Change all the "nan" values in channel_type column to "missing"
+channel_month_count <- mutate(channel_month_count, channel_type = if_else(channel_type == "nan", "missing", channel_type))
+```
+
+*Make the line chart based on the table.*
+
+```{r}
+# creating a line plot using ggplots
+ggplot(channel_month_count, aes(x = created_month, y = count, color = channel_type, group = channel_type)) +
+  geom_point() +
+  geom_line(na.rm = T) +
+  ggtitle("Number of Channels Created by Month") +
+  labs(x = "Month", y = "Number of Creations", color = "Channel") +
+  ProjectTheme
+```
+
+Based on the line chart, we can observe the trend in the total number of YouTube channel creations for different channel type each month. Similar to the previous chart, the variations in the trend are distinct for each Channel type. In this chart, the Channel type "Entertainment" has the highest monthly total creations, with "music" in second. There are many views for each channel types, but is there many subscribers for each channel type? What is the relationship between subscribers and video views?
+
+## Subscribers vs Video views
+
+*Select the columns we need for analyse and data cleaning.*
+
+```{r}
+# select columns "subscribers" and "video.views" from YT
+subscriber_vs_View <- YT[c("subscribers", "video.views")]
+
+# Define a function to remove outliers 
+rmoutliers <- function(data, column_name) {
+  
+  # Calculate the first quartile and third quartile
+  Q1 <- quantile(data[[column_name]], 0.25)
+  Q3 <- quantile(data[[column_name]], 0.75)
+  
+  # calculate the interquartile
+  IQR <- Q3 - Q1
+  
+  # Calculate the lower and upper bounds
+  lower_bound <- Q1 - 1.5 * IQR
+  upper_bound <- Q3 + 1.5 * IQR
+  
+  #identify and remove the outlines
+  outliers<- data[[column_name]] < lower_bound | data[[column_name]] > upper_bound
+
+  
+  # make sure there is no outliers
+  if (all(outliers)) {
+    return(data)
+  }
+  
+  
+  data[!outliers, ]
+}
+
+# Remove outliers from the 'subscribers' and ‘video.views’
+subscriber_vs_View <- rmoutliers(subscriber_vs_View, "video.views")
+subscriber_vs_View <- rmoutliers(subscriber_vs_View, "subscribers")
+```
+
+*Make the linear model based on the table.*
+
+```{r}
+# make a linear regression model between video.views and subscribers using ggplots
+ggplot(subscriber_vs_View, aes(x = subscribers / 1e6, y = video.views / 1e9)) +
+  geom_point() +
+  geom_smooth(formula = y ~ x, method = "lm", se = T) +
+  ggtitle("Subscribers vs Video views") +
+  labs(x = "Numbers of Subscribers in million", y = "Number of video views in billions") +
+  ProjectTheme
+```
+
+*Create a linear regression model based on the selected data*
+
+```{r}
+# summarize the linear regression model for variables of "video.views" and "subscribers"
+summary(lm(video.views ~ subscribers, data = subscriber_vs_View))
+```
+
+The chart above is a linear regression model, whichi is focusing on the relationship between the amount of subscribers and video views. On the chart, we can see that the ammount of subscribers and the video views make a linear relationship, which means that subscribers and video views are increasing with a certain ratio. After analyzing the model, the regression equation for these two variables appears to be, *video.views = 499.4 \* subscribers - 9.969e+08*, and it seems that we are fail to reject this equation since the P-value is way less than 0.05. However, what type of YouTubers do these subscribers prefer? Does their level of education affect their preferences for different YouTubers?
+
+## YouTubers creating Channel Types
+
+*Select the columns we need for analyse and data cleaning.*
+
+```{r}
+# Select the relevant columns from YT
+subscribersfromdifferentcountries <- YT[c("Youtuber", "subscribers", "channel_type", "Gross.tertiary.education.enrollment....")]
+
+# Remove rows with missing values
+subscribersfromdifferentcountries <- na.omit(subscribersfromdifferentcountries)
+
+# Change all the "nan" values in channel_type column to "missing"
+subscribersfromdifferentcountries <- mutate(subscribersfromdifferentcountries, channel_type = if_else(channel_type == "nan", "missing", channel_type))
+
+# Sort the remaining rows in descending order in the number of subscribers.
+subscribersfromdifferentcountries <- subscribersfromdifferentcountries[order(-subscribersfromdifferentcountries$subscribers), ]
+
+# select the top 15 channel types with the highest number of subscribers. 
+top_15_channels <- head(subscribersfromdifferentcountries, 15)
+```
+
+*Create a heatmap chart based on the selected data*
+
+```{r}
+# Create a ggplot using the 'top_15_channels'
+ggplot(top_15_channels, aes(channel_type, Youtuber)) + 
+  geom_count(mapping = aes(size= subscribers / 1e6, color=Gross.tertiary.education.enrollment....)) +
+  ggtitle("Subscribers for Youtubers by different channel") +
+  labs(x = "Channel Type") +
+  scale_color_continuous(low = "black", high = "blue", name = "Enrollment %") +
+  scale_size_continuous(range = c(1, 10), name = "# of Subscribers in millions") +
+  theme(
+    plot.title = element_text(colour = "darkblue"),
+    axis.text.x = element_text(angle = 20, hjust = 1),
+    panel.background = element_rect(fill = "lightblue"),        
+  ) +
+  ProjectTheme
+```
+
+<br> The chart above is a heatmap, which shows the distributed relationship between the top 15 YouTubers and different channel types.The size and color of the circles in the heatmap are changed based on the numbers of subscribers each YouTuber has and their percentage with higher education. YouTubers with a large amount of subscribers with a higher proportion of high education are 'Conmelon - Nursery Rhymes' and 'YouTube Movies', which belong to the Education and Music channel type. On the other hand, 'T-Series' owns the most number subscribers bust with the lowest higher education percentage and belongs to the Music channel type.A large number of people subscribe to these YouTubers. So, in which countries are these new subscribers located, or which countries has the most new youtubers?
+
+## new subscribers all over the world
+
+*Select the columns we need for analyse and data cleaning.*
+
+```{r}
+# Load world map data
+worldmap <- map_data("world")
+
+# Select the relevant columns from the 'YT'
+new_subscriber <- YT[c("Country","subscribers_for_last_30_days")]
+
+# Rename "United State" and "United Kingdom"
+new_subscriber$Country <- recode(new_subscriber$Country, 
+  "United States" = "USA",
+  "United Kingdom" = "UK"
+)
+
+# Sum up the number of new subscribers based on different countries
+new_subscriber <-aggregate(subscribers_for_last_30_days ~ Country, data = new_subscriber, FUN = sum)
+
+# Merge the world map data with the summed-up-subscriber data
+map_with_new  <- left_join(worldmap, new_subscriber, by = c("region" = "Country"))
+```
+
+*Create a world map and fill up the countries with colors based on the selected data*
+
+```{r, fig.width= 15, fig.height=10}
+# Create a world map with layers using ggplots
+ggplot(map_with_new, aes(long, lat, group = group)) +
+  geom_polygon(fill = "white", colour = "black") +
+  geom_polygon(aes(fill = subscribers_for_last_30_days / 1e6), colour = "black") +
+  scale_fill_gradient(
+    low = "lightblue", 
+    high = "darkblue",
+    name = "subscribers in million"
+  ) + 
+  ggtitle("New YouTube Subscribers by Country") +
+  labs(x = NULL,
+       y = NULL) +
+  theme_update() +
+  ProjectTheme
+```
+
+The chart above is a world map, and the different color filled in different countries represent the number of new YouTube subscribers each country owned. the darker the color, the greater the number of new subscribers. Based on the map, the United States and India have the darkest colors, indicating that they have the greates number of new subscribers in 30 days. Following them are Indoesia, Rossia, and several countries in South America, including Brazil and Argentina. Their colors are lighter but still show that they have a significant number of new subscribers. After that you can see European countries, like China, European countries and Australia. I am curious about the income of YouTubers. How is the YouTuber income related to the number of subscribers? How much does it increase?
+
+## New subscribers with earnings
+
+*Select the columns we need for analyse and data cleaning.*
+
+```{r}
+# selecting specific columns from YT table
+Channleearning <- YT[c("channel_type", "lowest_monthly_earnings", "highest_monthly_earnings", "lowest_yearly_earnings", "highest_yearly_earnings", "subscribers_for_last_30_days", "video_views_for_the_last_30_days")]
+
+# Replace NaN with 0 in the subscribers_for_last_30_days column
+Channleearning$subscribers_for_last_30_days[is.na(Channleearning$subscribers_for_last_30_days)] <- 0
+
+# Replace NaN with 0 in the video_views_for_the_last_30_days column
+Channleearning$video_views_for_the_last_30_days[is.na(Channleearning$video_views_for_the_last_30_days)] <- 0
+
+# remove all the rows that has "0" in all five columns
+Channleearning <- Channleearning[
+  Channleearning$lowest_monthly_earnings > 0 &
+  Channleearning$highest_monthly_earnings> 0 &
+  Channleearning$lowest_yearly_earnings > 0 &
+  Channleearning$highest_yearly_earnings > 0 &
+  Channleearning$subscribers_for_last_30_days > 0,
+]
+
+# Change all the "nan" values in channel_type column to "others"
+earning_channeltype <- Channleearning %>%
+  select(channel_type, lowest_monthly_earnings, highest_monthly_earnings, lowest_yearly_earnings, highest_yearly_earnings) %>%
+  mutate(channel_type = if_else(channel_type == "nan", "missing", channel_type)) %>%
+  filter(lowest_monthly_earnings > 0,
+         highest_monthly_earnings > 0,
+         lowest_yearly_earnings > 0,
+         highest_yearly_earnings > 0) %>%
+  group_by(channel_type) %>%
+  summarize(total_monlow = sum(lowest_monthly_earnings, na.rm = TRUE),
+            total_monhi = sum(highest_monthly_earnings, na.rm = TRUE),
+            total_yrlow = sum(lowest_yearly_earnings, na.rm = TRUE),
+            total_yrhi = sum(highest_yearly_earnings, na.rm = TRUE))
+
+Channleearning <- Channleearning %>%
+    left_join(earning_channeltype, by = "channel_type")
+
+# Calculate logarithms
+Channleearning <- Channleearning %>%
+  mutate(
+    logLEM = log(lowest_monthly_earnings),
+    logHEM = log(highest_monthly_earnings),
+    logLEY = log(lowest_yearly_earnings),
+    logHEY = log(highest_yearly_earnings)
+  )
+
+colnames(Channleearning) <- c( "channel_type", "lowest earnings in million (mon)", "highest earnings in million (mon)", "lowest earnings in million (yr)", "highest earnings in million (yr)", "new subscribers in million (30 days)","new views in million (30 days)", "lowest earnings in million by Channel (mon)","highest earnings in million by Channel (mon)","lowest earnings in million by Channel (yr)","highest earnings in million by Channel (yr)", "logLEM","logHEM","logLEY","logHEY" )
+
+```
+
+*Create a Shiny app to analyze the data above*
+
+```{r, fig.height=15}
+# Define the UI for the Shiny app
+ui <- fluidPage(
+  
+  # set up the panel for the app
+  titlePanel("How does new subscribers affect earnings"),
+  sidebarLayout(
+    sidebarPanel(
+      
+      # set up the selectInput for selecting a plot
+      selectInput("plot_select", "Select a chart:",
+                  choices = c("New Subscribers vs Earnings" = "plot1", "Proportion for new subscribers" = "plot2", "Distribution for earning in different period" = "plot3")),
+      conditionalPanel(
+        
+        # set up the condition for the first plot
+        condition = "input.plot_select == 'plot1'",
+        
+        # set up the selectInput for selecting a Y variable
+        selectInput("y_variable", "Select your Y Variable:",
+                    choices = c("lowest earnings in million (mon)", "highest earnings in million (mon)", "lowest earnings in million (yr)", "highest earnings in million (yr)")),
+        
+        # set up the selectInput for selecting a x variable
+        selectInput("x_variable", "Select your X Variable:",
+                    choices = c("new subscribers in million (30 days)", "new views in million (30 days)")),
+        
+        # set up the selectInput for selecting a Channel Type and delete all the identical channel type
+        selectInput("color_variable", "Select a Channel Type:",
+                    choices = unique(Channleearning$channel_type))
+      ),
+      conditionalPanel(
+        
+        # set up the condition for the second plot
+        condition = "input.plot_select == 'plot2'",
+        
+        selectInput("table_area", "Select your earning period:",
+                    choices = c("lowest earnings in million by Channel (mon)","highest earnings in million by Channel (mon)","lowest earnings in million by Channel (yr)","highest earnings in million by Channel (yr)"))
+      ),
+      conditionalPanel(
+        
+        # set up the condition for the third plot
+        condition = "input.plot_select == 'plot3'",
+        
+        # set up the selectInput for selecting the earning period
+        selectInput("earning", "Select your focusing earing period:",
+                    choices = c("logLEM","logHEM","logLEY","logHEY"))
+      )
+    ),
+    mainPanel(
+      
+      # set up the output
+      plotOutput("selected_plot"),
+      
+      # set up the output paragraph in all three plot
+      conditionalPanel(
+        condition = "input.plot_select == 'plot1'",
+        verbatimTextOutput("plot1_text")
+      ),
+      conditionalPanel(
+        condition = "input.plot_select == 'plot2'",
+        verbatimTextOutput("plot2_text")
+      ),
+      conditionalPanel(
+        condition = "input.plot_select == 'plot3'",
+        verbatimTextOutput("plot3_text")
+      )
+    )
+  )
+)
+
+
+server <- function(input, output) {
+  
+  # Create a reactive expression for the plot
+  output$selected_plot <- renderPlot({
+    if (input$plot_select == "plot1") {
+      channeltype_selection <- input$color_variable
+      
+      # clean the data based on the channel type
+      Channleearning_filtered <- 
+        Channleearning[Channleearning$channel_type == channeltype_selection, ]
+      
+      # Create a linear regression line to analyze the relationship between estimated earning amount and new subscribers and views in 30 days
+      ggplot(Channleearning_filtered, 
+             aes(x = .data[[input$x_variable]]/ 1e6, y = .data[[input$y_variable]]/ 1e6)) +
+        geom_point(shape = 16) +
+        geom_smooth(funcion = y ~ x, method = "lm") +
+        labs(
+          x = input$x_variable,
+          y = input$y_variable,
+          title = "New Subscribers or views vs Earnings"
+        ) +
+        ProjectTheme
+    } else if (input$plot_select == "plot2") {
+      
+      # Create a pie chart to analyze the distribution of estimated earnings by channel type
+      ggplot(Channleearning, aes(x = "", y = .data[[input$table_area]] / 1e9, fill = channel_type)) +
+        geom_bar(stat = "identity") +
+        coord_polar(theta = "y") +
+        theme_void() +
+        labs(
+          y = "Estimated earning in million",
+          title = "proportion for Estimated earning in different channel type"
+        ) +
+        ProjectTheme 
+    } else {
+      
+      # Create a histogram and density plot for estimated earnings distribution
+      ggplot(Channleearning, aes(x = .data[[input$earning]])) +
+        geom_histogram(aes(y=..density..), bins = 100, fill = "grey") +
+        geom_density(color = "royalblue4") +
+        ggtitle("Distribution for earning in different period") +
+        labs(
+          x = input$earning
+        ) +
+        ProjectTheme
+    }
+    
+  })
+  
+  output$plot1_text <- renderText({
+    if (input$plot_select == "plot1") {
+      "The chart above is a linear regression plot which shows the estimate 
+      \nlinear relationship between the number of subscribers and video views in the 
+      \nlast 30 days and estimated earning over four different time periods. In these 
+      \nseries of plots, I have separated these regression graphs by different 
+      \nchannel types and different periods of estimate earning. The results show 
+      \nthat, although some of these plots may have insufficient data, 
+      \noverall, regardless of the channel type, the more subscribers or video views, 
+      \nthe more estimated earning."
+    } else {
+      ""
+    }
+  })
+
+  # Render text for the second plot only when plot 2 is selected
+  output$plot2_text <- renderText({
+    if (input$plot_select == "plot2") {
+      "The plot above is a pie chart which abalyzes the estimated earning 
+      \ndiscribution of different channel types during different period. 
+      \nFrom the pie chart, we can see that while the earnings from each period 
+      \nare different, the Entertainment channel has the largest share of the 
+      \nestimate earning, which takes over a half of the pie. It seems that everyone 
+      \nis very interested in Entertainment. Next in terms of share is Music. The 
+      \nshares of the other types are relatively small. So, how much money do most 
+      \nYouTubers make?"
+    } else {
+      ""
+    }
+  })
+
+  # Render text for the third plot only when plot 3 is selected
+  output$plot3_text <- renderText({
+    if (input$plot_select == "plot3") {
+      "Finally, let's take a look at the density distribution of estimated earning 
+      \nin different period. The plot above shows us a seriees of historgrams, which
+      \nshows us is the distribution of the earning estimation from different periods.
+      \nSince the different between each values iof data are too large and seems that 
+      \nthere is not a clear pattern , transforming the data of estimated earning in 
+      \ndifferent time period  using logarithm can make it easier to see the pattern.
+      \nIn these graphs, we can see that the majority of low estimated earnings are 
+      \nconcentrated around 10 to 15, and for the mojority of high estimated earning,
+      \nmost of them are concentrated arount 17"
+    } else {
+      ""
+    }
+  })  
+  
+}
+shinyApp(ui, server)
+
+
+```
+
+Based on the analysis above, with the development of the internet and the video industry, citizens in various countries, especially in countries like USA and India, are increasingly intent to watch videos online, such as Entertainment and music, for relieve the pressures from work and study. Some of them share their thoughts and interests in the video format with others using YouTube, even they can get some earnings from these videos.The more subscribers and views these YouTubers have, the more earnings they can get. However, looking at the chars, most of these earnings from these YouTubers is not very hight, and with lifestyle and pace changing and some new video platforms rise up like TikTok, some of these YouTubers and subscribers may switch their attentions on to different platforms for uploading or watching videos. the number of people continuing to use YouTube is decreasing. Therefore, for those who want to continue makeing earning fomr YouTube should think carefully before proceeding.

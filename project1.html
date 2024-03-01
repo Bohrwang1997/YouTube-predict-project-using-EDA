@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<!-- saved from url=(0034)http://127.0.0.1:3330/project1.Rmd -->
+<html class=""><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <script type="application/shiny-singletons"></script>
+  <script type="application/html-dependencies">jquery[3.6.0];shiny-css[1.7.4.1];shiny-javascript[1.7.4.1]</script>
+<script src="./project1_files/jquery.min.js.download"></script>
+<link href="./project1_files/shiny.min.css" rel="stylesheet">
+<script src="./project1_files/shiny.min.js.download"></script>  <script src="./project1_files/rmd_loader.js.download"></script>
+  <link href="./project1_files/rmd_loader.css" rel="stylesheet">
+<script src="./project1_files/header-attrs.js.download"></script><meta name="viewport" content="width=device-width, initial-scale=1"><link href="./project1_files/bootstrap.min.css" rel="stylesheet" type="text/css"><script src="./project1_files/bootstrap.min.js.download"></script><script src="./project1_files/html5shiv.min.js.download"></script><script src="./project1_files/respond.min.js.download"></script><style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style><script src="./project1_files/tabsets.js.download"></script><script src="./project1_files/codefolding.js.download"></script><link href="./project1_files/default.css" rel="stylesheet" type="text/css"><script src="./project1_files/highlight.js.download"></script><link href="./project1_files/rmd_perf.css" rel="stylesheet" type="text/css"><script src="./project1_files/rmd_perf.js.download"></script><meta name="rstudio_origin" content="127.0.0.1:34449"><script src="./project1_files/rsiframe.js.download"></script>
+
+
+<meta name="generator" content="pandoc">
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE">
+
+
+<meta name="author" content=" Yiren WANG(23794201) ">
+
+
+<title> EDA for Global Youtube Dataset </title>
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+
+
+<style type="text/css">
+
+body{ /* Normal  */
+  font-size: 14px;
+  }
+h1 { /* Header 1 */
+  font-size: 24px;
+  font-weight: bold;
+  color: DarkBlue;
+  font-family: "Comic Sans MS", cursive, sans-serif;
+}
+h2 { /* Header 2 */
+    font-size: 20px;
+  color: DarkBlue;
+}
+</style>
+<script type="text/javascript" src="./project1_files/MathJax.js.download"></script><style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
+.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
+.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_About.MathJax_MousePost {outline: none}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 2px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 2px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: 1em}
+.MathJax_MenuRadioCheck.RTL {right: 1em; left: auto}
+.MathJax_MenuLabel {padding: 2px 2em 4px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #CCCCCC; margin: 4px 1px 0px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: Highlight; color: HighlightText}
+.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
+.MathJax_ContextMenu:focus {outline: none}
+.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
+#MathJax_AboutClose {top: .2em; right: .2em}
+.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
+.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
+.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
+.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_MenuClose:hover span {background-color: #CCC!important}
+.MathJax_MenuClose:hover:focus {outline: none}
+</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
+</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
+.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><style type="text/css">.MJXp-script {font-size: .8em}
+.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
+.MJXp-bold {font-weight: bold}
+.MJXp-italic {font-style: italic}
+.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-largeop {font-size: 150%}
+.MJXp-largeop.MJXp-int {vertical-align: -.2em}
+.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
+.MJXp-display {display: block; text-align: center; margin: 1em 0}
+.MJXp-math span {display: inline-block}
+.MJXp-box {display: block!important; text-align: center}
+.MJXp-box:after {content: " "}
+.MJXp-rule {display: block!important; margin-top: .1em}
+.MJXp-char {display: block!important}
+.MJXp-mo {margin: 0 .15em}
+.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
+.MJXp-denom {display: inline-table!important; width: 100%}
+.MJXp-denom > * {display: table-row!important}
+.MJXp-surd {vertical-align: top}
+.MJXp-surd > * {display: block!important}
+.MJXp-script-box > *  {display: table!important; height: 50%}
+.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
+.MJXp-script-box > *:last-child > * {vertical-align: bottom}
+.MJXp-script-box > * > * > * {display: block!important}
+.MJXp-mphantom {visibility: hidden}
+.MJXp-munderover, .MJXp-munder {display: inline-table!important}
+.MJXp-over {display: inline-block!important; text-align: center}
+.MJXp-over > * {display: block!important}
+.MJXp-munderover > *, .MJXp-munder > * {display: table-row!important}
+.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
+.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
+.MJXp-mtr {display: table-row!important}
+.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
+.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-mlabeledtr {display: table-row!important}
+.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
+.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
+.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
+.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
+.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
+.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
+.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
+.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
+.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
+.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
+.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style></head>
+<body><div id="MathJax_Message" style="display: none;"></div>
+  <div>
+    <div data-display-if="!output.__reactivedoc__" data-ns-prefix="" style="display: none;">
+      <div id="rmd_loader_wrapper">
+        <div id="rmd_loader" style="">
+          <p>Please wait...</p>
+          <img src="./project1_files/rmd_loader.gif">
+        </div>
+      </div>
+    </div>
+    <div id="__reactivedoc__" class="shiny-html-output shiny-bound-output" aria-live="polite">
+
+
+
+
+
+
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<!-- saved from url=(0161)https://lms.uwa.edu.au/bbcswebdav/pid-3380044-dt-content-rid-42847588_1/courses/CITS4009_SEM-2_2023/CITS4009_SEM-2_2023_ImportedContent_20230717012101/style.html -->
+
+
+<div id="section-header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="http://127.0.0.1:3330/project1.Rmd#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="http://127.0.0.1:3330/project1.Rmd#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore"><center><br>
+EDA for Global Youtube Dataset<br>
+</center></h1>
+<h3 class="subtitle"><center><br>
+Project 1 - CITS4009<br>
+</center></h3>
+<h4 class="author"><center><br>
+<i>Yiren WANG(23794201)</i><br>
+</center></h4>
+<h4 class="date"><center><br>
+30-08-2023<br>
+</center></h4>
+
+</div>
+
+
+<div id="section-youtube-url-link-httpsyoutu.bexsr2hn7mz3i" class="section level3">
+<h3>YouTube URL Link: <a href="https://youtu.be/xSr2hn7mz3I" class="uri">https://youtu.be/xSr2hn7mz3I</a></h3>
+</div>
+<div id="section-data-basic-introduction" class="section level1">
+<h1>Data basic Introduction</h1>
+<p>The dataset analyzed in this project is called <strong>Global Youtube
+Statistics 2023</strong>, which can be obtained from <em>Kaggle</em>
+platform and it can be downloaded on <a href="https://www.kaggle.com/datasets/nelgiriyewithana/global-youtube-statistics-2023">Kaggle.com</a>.</p>
+<p>This dataset was collected by a Sri Lanka data scientist name Nidula
+Elgiriyewithana. In this data, he recorded plenty of data abut different
+aspexts of YouTube by collecting datasets from YouTube gients. This
+dateset provided includes information such as video views, upload
+frequency, country of origin, earnings.</p>
+</div>
+<div id="section-data-preparation" class="section level1">
+<h1>Data preparation</h1>
+<div id="section-library-loading-and-set-up" class="section level2">
+<h2>Library loading and Set up</h2>
+<p><em>For the first step, clean the working environment.</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F361" data-bs-target="#rcode-643E0F361" aria-expanded="true" aria-controls="rcode-643E0F361"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F361" aria-expanded="true" style=""><pre class="r"><code class="hljs">rm(list = ls())</code></pre></div>
+<p><em>Next, install and list all library packages that could be
+utilized in this analysis and load them.</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F362" data-bs-target="#rcode-643E0F362" aria-expanded="true" aria-controls="rcode-643E0F362"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F362" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-keyword">library</span>(ggplot2)
+<span class="hljs-keyword">library</span>(gridExtra)
+<span class="hljs-keyword">library</span>(dplyr)
+<span class="hljs-keyword">library</span>(ggthemes)
+<span class="hljs-keyword">library</span>(shiny)
+<span class="hljs-keyword">library</span>(treemapify)
+<span class="hljs-keyword">library</span>(maps)
+<span class="hljs-keyword">library</span>(tidyverse)</code></pre></div>
+<p><em>After that, configure the theme to enhance the virsual clarity of
+the chart.</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F363" data-bs-target="#rcode-643E0F363" aria-expanded="true" aria-controls="rcode-643E0F363"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F363" aria-expanded="true" style=""><pre class="r"><code class="hljs">ProjectTheme &lt;- theme(
+  panel.background = element_rect(fill = <span class="hljs-string">"lightblue"</span>),  
+  axis.title.x = element_text(size = <span class="hljs-number">14</span>),  
+  axis.title.y = element_text(size = <span class="hljs-number">14</span>),  
+  axis.text.x = element_text(size = <span class="hljs-number">8</span>),  
+  axis.text.y = element_text(size = <span class="hljs-number">8</span>),
+  plot.title = element_text(size = <span class="hljs-number">17</span>, colour = <span class="hljs-string">"darkblue"</span>),  
+  text = element_text(size = <span class="hljs-number">10</span>, colour = <span class="hljs-string">"royalblue4"</span>),
+  plot.margin=margin(<span class="hljs-number">10</span>,<span class="hljs-number">30</span>,<span class="hljs-number">10</span>,<span class="hljs-number">30</span>))</code></pre></div>
+</div>
+<div id="section-data-import-and-data-description" class="section level2">
+<h2>Data import and Data description</h2>
+<p><em>Read the csv file, import the dataset into R and assign it to
+variable name ‘YT’.</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F364" data-bs-target="#rcode-643E0F364" aria-expanded="true" aria-controls="rcode-643E0F364"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F364" aria-expanded="true" style=""><pre class="r"><code class="hljs">YT &lt;- read.csv(<span class="hljs-string">"youtube_UTF_8.csv"</span>, header = <span class="hljs-literal">T</span>, encoding = <span class="hljs-string">"UTF-8"</span>)</code></pre></div>
+<p><em>Lets show the first ten observations in the data</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F365" data-bs-target="#rcode-643E0F365" aria-expanded="true" aria-controls="rcode-643E0F365"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F365" aria-expanded="true" style=""><pre class="r"><code class="hljs">head(YT, <span class="hljs-number">10</span>)</code></pre></div>
+<p>The first ten lines indicate that the entire dataset is a
+well-organized tidy data., where the data is structured into rows and
+columns. Furthermore, we can observe the presence of some large values
+as well as some missing data that marked as ‘NA’ and ‘0’.</p>
+<p><em>Examine and analyze the dataset using ‘str()’ function.</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F366" data-bs-target="#rcode-643E0F366" aria-expanded="true" aria-controls="rcode-643E0F366"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F366" aria-expanded="true" style=""><pre class="r"><code class="hljs">str(YT)</code></pre></div>
+<p>The dataset contains 955 observations and 28 variables. These
+variables include a range of field, such as”subscribers,” “Country,” and
+“Latitude”, and some of these variables have data that seems
+unrelated.Within these variables, there are 21 of them contains
+numerical data, and 7 of them are categorical data.</p>
+<p><em>Summarize and analyze each column in the dataset by using
+‘summary()’ function.</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F367" data-bs-target="#rcode-643E0F367" aria-expanded="true" aria-controls="rcode-643E0F367"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F367" aria-expanded="true" style=""><pre class="r"><code class="hljs">summary(YT)</code></pre></div>
+</div>
+</div>
+<div id="section-data-cleaning" class="section level1">
+<h1>Data Cleaning</h1>
+<p><em>Calculate how many missing data in the table for each
+column.</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F368" data-bs-target="#rcode-643E0F368" aria-expanded="true" aria-controls="rcode-643E0F368"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F368" aria-expanded="true" style=""><pre class="r"><code class="hljs">apply(YT, <span class="hljs-number">2</span>, <span class="hljs-keyword">function</span>(col) sum(is.na(col)))</code></pre></div>
+<pre><code class="hljs">##                                    rank                                Youtuber 
+##                                       0                                       0 
+##                             subscribers                             video.views 
+##                                       0                                       0 
+##                                category                                   Title 
+##                                       0                                       0 
+##                                 uploads                                 Country 
+##                                       0                                       0 
+##                            Abbreviation                            channel_type 
+##                                       0                                       0 
+##                        video_views_rank                            country_rank 
+##                                       1                                     116 
+##                       channel_type_rank        video_views_for_the_last_30_days 
+##                                      33                                      56 
+##                 lowest_monthly_earnings                highest_monthly_earnings 
+##                                       0                                       0 
+##                  lowest_yearly_earnings                 highest_yearly_earnings 
+##                                       0                                       0 
+##            subscribers_for_last_30_days                            created_year 
+##                                     337                                       5 
+##                           created_month                            created_date 
+##                                       0                                       5 
+## Gross.tertiary.education.enrollment....                              Population 
+##                                     123                                     123 
+##                       Unemployment.rate                        Urban_population 
+##                                     123                                     123 
+##                                Latitude                               Longitude 
+##                                     123                                     123</code></pre>
+<p>Based on the result, we can see that most of these columns have
+either no missing values or very few missing values, such as
+subscribers, channel_type, and created_year.For these columns, we can
+consider deleting these values. However, there are 8 columns that have
+more than 100 missing values each, including
+Gross.tertiary.education.enrollment…, Unemployment.rate, Latitude,
+Urban_population, Population, Longitude, country_rank, and
+subscribers_for_last_30_days. Among these columns,
+subscribers_for_last_30_days has the highest number of missing values,
+reaching 337. In the summary, we can see there are six variables that
+they all have 123 missing values. Lets check whether they are the
+same.</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F369" data-bs-target="#rcode-643E0F369" aria-expanded="true" aria-controls="rcode-643E0F369"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F369" aria-expanded="true" style=""><pre class="r"><code class="hljs">summary(
+  cbind(
+   Population = which(is.na(YT$Population)),
+   Education = which(is.na(YT$Gross.tertiary.education.enrollment....)),
+   unemployment = which(is.na(YT$Unemployment.rate)),
+   Urban = which(is.na(YT$Urban_population)),
+   Latitude = which(is.na(YT$Latitude)),
+   Longitude = which(is.na(YT$Longitude))
+  )
+)</code></pre></div>
+<pre><code class="hljs">##    Population      Education      unemployment       Urban      
+##  Min.   :  6.0   Min.   :  6.0   Min.   :  6.0   Min.   :  6.0  
+##  1st Qu.:202.0   1st Qu.:202.0   1st Qu.:202.0   1st Qu.:202.0  
+##  Median :432.0   Median :432.0   Median :432.0   Median :432.0  
+##  Mean   :446.7   Mean   :446.7   Mean   :446.7   Mean   :446.7  
+##  3rd Qu.:663.0   3rd Qu.:663.0   3rd Qu.:663.0   3rd Qu.:663.0  
+##  Max.   :987.0   Max.   :987.0   Max.   :987.0   Max.   :987.0  
+##     Latitude       Longitude    
+##  Min.   :  6.0   Min.   :  6.0  
+##  1st Qu.:202.0   1st Qu.:202.0  
+##  Median :432.0   Median :432.0  
+##  Mean   :446.7   Mean   :446.7  
+##  3rd Qu.:663.0   3rd Qu.:663.0  
+##  Max.   :987.0   Max.   :987.0</code></pre>
+<p>Clearly, the data distribution of these missing values is the same.
+This indicates that these missing data can affect the accuracy and
+reliability of overall data analysis.</p>
+<p><em>now delete row that has multiple missing values</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3610" data-bs-target="#rcode-643E0F3610" aria-expanded="true" aria-controls="rcode-643E0F3610"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3610" aria-expanded="true" style=""><pre class="r"><code class="hljs">miss_6_row &lt;- apply(YT, <span class="hljs-number">1</span>, <span class="hljs-keyword">function</span>(row) sum(is.na(row)) &gt;= <span class="hljs-number">8</span>)
+YT &lt;- YT[!miss_6_row, ]</code></pre></div>
+<p>For these rows that has missing values, we should not simply delete
+them when we see them, since we might remove other meaningful values in
+the same row. However, if there exist a row contains multuple missing
+values, we have reason to believe that this row is not suitable for data
+analysis, and we can delete it.</p>
+</div>
+<div id="section-data-visualization" class="section level1">
+<h1>Data Visualization</h1>
+<div id="section-subscribers-vs-country" class="section level2">
+<h2>Subscribers vs Country</h2>
+<p><em>Take out the columns we need and do the data cleaning.</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3611" data-bs-target="#rcode-643E0F3611" aria-expanded="true" aria-controls="rcode-643E0F3611"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3611" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment"># sum up the numbers of subscribers for each country</span>
+YT_by_country &lt;- aggregate(subscribers ~ Country, YT, FUN = <span class="hljs-keyword">function</span>(x) sum(x, na.rm = <span class="hljs-literal">TRUE</span>))
+
+<span class="hljs-comment"># Romove the rows that including missing value</span>
+YT_by_country &lt;- YT_by_country[YT_by_country!= <span class="hljs-string">"nan"</span>,]
+
+<span class="hljs-comment"># re-order the table by the number of subscribers in desent order</span>
+YT_country_sort &lt;- arrange(YT_by_country, desc(subscribers))
+
+<span class="hljs-comment"># select the top 15 countries</span>
+YT_15_countries &lt;- head(YT_country_sort, <span class="hljs-number">15</span>)</code></pre></div>
+<p><em>Make the bar chart for the data.</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3612" data-bs-target="#rcode-643E0F3612" aria-expanded="true" aria-controls="rcode-643E0F3612"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3612" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment"># Create a bar plot using ggplot to visualize the numbers of subscribers for the top 15 countries.</span>
+ggplot(YT_15_countries, aes(x = reorder(Country, subscribers), y = subscribers / <span class="hljs-number">1e9</span>)) +
+  geom_bar(stat = <span class="hljs-string">"identity"</span>, fill = <span class="hljs-string">"royalblue3"</span>, position = <span class="hljs-string">"identity"</span>) +
+  ggtitle(<span class="hljs-string">"Numbers of Subscribers in Different Countries"</span>) +
+  geom_text(aes(label = subscribers / <span class="hljs-number">1000000000</span>), hjust = <span class="hljs-number">0.3</span>, vjust = <span class="hljs-number">0.5</span>, size = <span class="hljs-number">3</span>, color = <span class="hljs-string">"black"</span>) +
+  coord_flip() +
+  labs(x = <span class="hljs-string">"Country"</span>, y = <span class="hljs-string">"Subscribers (Billions)"</span>) + 
+  ProjectTheme +
+  theme(legend.key.size = unit(<span class="hljs-number">5</span>, <span class="hljs-string">"mm"</span>)) + 
+  
+  <span class="hljs-comment"># add the the average number of subscribers from all the countries in the chart</span>
+  annotate(<span class="hljs-string">"segment"</span>, x = <span class="hljs-number">8.5</span>, y = <span class="hljs-number">1.8</span>, xend = <span class="hljs-number">8.5</span>, yend = <span class="hljs-number">1</span>, arrow = arrow(length = unit(<span class="hljs-number">0.3</span>, <span class="hljs-string">"cm"</span>))) +
+  annotate(<span class="hljs-string">"text"</span>, x = <span class="hljs-number">8.5</span>, y = <span class="hljs-number">2.75</span>, label = <span class="hljs-string">"the average number of subscribers \namoung all the country \nis 0.4573 billion people"</span>, size = <span class="hljs-number">3</span> )</code></pre></div>
+<p><img src="./project1_files/unnamed-chunk-12-1.png" width="672"></p>
+<p>The bar chart is focusing on the number of subscribers in the top 15
+countries. In this chart, we can see a even distribution among these
+countries, and there is a big gap between United States and India to the
+rest. It is easy to tell, since YouTube is the native company in the
+United States, and India has the most population in the world with the
+cheapest internet fee. The average number of subscribers across all
+countries is 457.3 million people, and there are only 7 countries that
+have numbers of subscribers over that numbers. However, What type of
+programs do these subscribers like to watch?</p>
+</div>
+<div id="section-numbers-of-views-vs-channel-types" class="section level2">
+<h2>Numbers of Views vs Channel Types</h2>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3613" data-bs-target="#rcode-643E0F3613" aria-expanded="true" aria-controls="rcode-643E0F3613"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3613" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment"># sum up the number of video views for each channel type, and removing all the missing values</span>
+YT_by_channel_type &lt;- aggregate(video.views ~ channel_type, data = na.omit(YT), FUN = <span class="hljs-keyword">function</span>(x) sum(subset(x, x != <span class="hljs-number">0</span>)))
+
+<span class="hljs-comment"># Create a treemap plot based on the result</span>
+ggplot(YT_by_channel_type, aes(area = video.views, fill = video.views / <span class="hljs-number">1000000000000</span>, label = channel_type)) +
+  geom_treemap() + 
+  geom_treemap_text(colour = <span class="hljs-string">"white"</span>, place = <span class="hljs-string">"centre"</span>, fontface = <span class="hljs-string">"italic"</span>, reflow = <span class="hljs-literal">TRUE</span>, alpha = <span class="hljs-number">0.7</span>) +
+  labs(fill = <span class="hljs-string">"Number of Viewers in Trillion"</span>) +
+  
+  <span class="hljs-comment"># make the legend at the bottom</span>
+  theme(legend.position = <span class="hljs-string">"bottom"</span>) +
+  theme(axis.text = element_blank(), 
+        axis.title = element_blank(), 
+        panel.grid = element_blank(),
+        plot.title = element_text(size = <span class="hljs-number">15</span>, hjust = <span class="hljs-number">0.5</span>)) +
+        ggtitle(<span class="hljs-string">"Numbers of views in different types of videos"</span>) +
+  coord_fixed(ratio = <span class="hljs-number">1</span>)</code></pre></div>
+<p><img src="./project1_files/unnamed-chunk-13-1.png" width="672"></p>
+<p>The tree map chart above shows a great visual representation of the
+proportion of different channel types based on the numbers of views.
+Channel with has a great number of video views has a big percentage of
+area, such as music and entertainment, where those with small number of
+ideo views has a small area. It is easy to understand since music and
+entertainment program are usually short but bring happiness to audience,
+which is fit to the fast-paced lifestyle.But,How many channels in
+different types produce each time period?</p>
+</div>
+<div id="section-number-of-productions-in-different-channels-by-year-and-by-month." class="section level2">
+<h2>Number of productions in different Channels by Year and by
+Month.</h2>
+<p><em>Select the columns we need for analyse and data
+cleaning.</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3614" data-bs-target="#rcode-643E0F3614" aria-expanded="true" aria-controls="rcode-643E0F3614"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3614" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment"># selecting columns channel_type and created_year from YT table</span>
+channel_year &lt;- YT[c(<span class="hljs-string">"channel_type"</span>,<span class="hljs-string">"created_year"</span>)]
+
+<span class="hljs-comment"># group by channel_type and created_year, and count for each group</span>
+channel_year_count &lt;- channel_year %&gt;%
+  group_by(channel_type, created_year) %&gt;%
+  summarize(count = n(), .groups = <span class="hljs-string">"drop"</span>)
+
+<span class="hljs-comment"># delete all the rows that has missing values</span>
+channel_year_count &lt;- na.omit(channel_year_count)
+
+<span class="hljs-comment"># ignore the columns that has "1970" in the created_year, since there is no YouTube in 1970</span>
+channel_year_count  &lt;- channel_year_count [channel_year_count $created_year != <span class="hljs-number">1970</span>, ]
+
+<span class="hljs-comment"># Change all the "nan" values in channel_type column to "others"</span>
+channel_year_count &lt;- mutate(channel_year_count, channel_type = ifelse(channel_type == <span class="hljs-string">"nan"</span>, <span class="hljs-string">"missing"</span>, channel_type))</code></pre></div>
+<p><em>Make the line chart based on the table.</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3615" data-bs-target="#rcode-643E0F3615" aria-expanded="true" aria-controls="rcode-643E0F3615"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3615" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment"># creating a line plot using ggplots</span>
+ggplot(channel_year_count, aes(x = created_year, y =count, color = channel_type)) +
+  geom_point() +
+  geom_line(na.rm = <span class="hljs-literal">T</span>) +
+  ggtitle(<span class="hljs-string">"Number of Channels Created by Year"</span>) +
+  labs(x = <span class="hljs-string">"Years"</span>, y = <span class="hljs-string">"Number of Creations"</span>, color = <span class="hljs-string">"Channel"</span>) +
+  ProjectTheme</code></pre></div>
+<p><img src="./project1_files/unnamed-chunk-15-1.png" width="672"></p>
+<p>The line chart above shows the trend in the number of YouTube Channel
+Creation for the different channel types each year from 2005 (the year
+YouTube was founded) to current. In this chart, we can see that there is
+a noticeable difference in the number of creating for certain channel
+types, such as entertainment, music, and file. the number of creations
+for each channel type are different overtime, with incremental and
+decrements. However, there are specific time where all channel types
+either growth or decline. For example, in 2016, all channel types
+experienced growth. This can be explained by YouTube’s acquisition by
+Google Co.&nbsp;in that year, which brought more attention and resources to
+YouTube. However, by 2022, due to the rise of short-video platforms like
+TikTok and Facebook, many YouTubers shifted their attention to other
+platforms. This trend caused a decline in the number of YouTube video
+creations across all channel type.</p>
+<p>Now lets see the number of program creating by each month.</p>
+<p><em>Select the columns we need for analyse and data
+cleaning.</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3616" data-bs-target="#rcode-643E0F3616" aria-expanded="true" aria-controls="rcode-643E0F3616"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3616" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment"># selecting columns channel_type and created_year from YT table</span>
+channel_month &lt;- YT[c(<span class="hljs-string">"channel_type"</span>,<span class="hljs-string">"created_month"</span>)]
+
+<span class="hljs-comment"># group by channel_type and created_month, and count for each group</span>
+channel_month_count &lt;- channel_month %&gt;%
+  group_by(channel_type, created_month) %&gt;%
+  summarize(count = n(), .groups = <span class="hljs-string">"drop"</span>)
+
+<span class="hljs-comment"># delete all the rows that has missing values</span>
+channel_month_count &lt;- na.omit(channel_month_count)
+
+<span class="hljs-comment"># delete the row that has missing value if the created_month column</span>
+channel_month_count &lt;- channel_month_count [channel_month_count$created_month != <span class="hljs-string">"nan"</span>, ]
+
+<span class="hljs-comment"># Change all the "nan" values in channel_type column to "missing"</span>
+channel_month_count &lt;- mutate(channel_month_count, channel_type = if_else(channel_type == <span class="hljs-string">"nan"</span>, <span class="hljs-string">"missing"</span>, channel_type))</code></pre></div>
+<p><em>Make the line chart based on the table.</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3617" data-bs-target="#rcode-643E0F3617" aria-expanded="true" aria-controls="rcode-643E0F3617"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3617" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment"># creating a line plot using ggplots</span>
+ggplot(channel_month_count, aes(x = created_month, y = count, color = channel_type, group = channel_type)) +
+  geom_point() +
+  geom_line(na.rm = <span class="hljs-literal">T</span>) +
+  ggtitle(<span class="hljs-string">"Number of Channels Created by Month"</span>) +
+  labs(x = <span class="hljs-string">"Month"</span>, y = <span class="hljs-string">"Number of Creations"</span>, color = <span class="hljs-string">"Channel"</span>) +
+  ProjectTheme</code></pre></div>
+<p><img src="./project1_files/unnamed-chunk-17-1.png" width="672"></p>
+<p>Based on the line chart, we can observe the trend in the total number
+of YouTube channel creations for different channel type each month.
+Similar to the previous chart, the variations in the trend are distinct
+for each Channel type. In this chart, the Channel type “Entertainment”
+has the highest monthly total creations, with “music” in second. There
+are many views for each channel types, but is there many subscribers for
+each channel type? What is the relationship between subscribers and
+video views?</p>
+</div>
+<div id="section-subscribers-vs-video-views" class="section level2">
+<h2>Subscribers vs Video views</h2>
+<p><em>Select the columns we need for analyse and data
+cleaning.</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3618" data-bs-target="#rcode-643E0F3618" aria-expanded="true" aria-controls="rcode-643E0F3618"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3618" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment"># select columns "subscribers" and "video.views" from YT</span>
+subscriber_vs_View &lt;- YT[c(<span class="hljs-string">"subscribers"</span>, <span class="hljs-string">"video.views"</span>)]
+
+<span class="hljs-comment"># Define a function to remove outliers </span>
+rmoutliers &lt;- <span class="hljs-keyword">function</span>(data, column_name) {
+  
+  <span class="hljs-comment"># Calculate the first quartile and third quartile</span>
+  Q1 &lt;- quantile(data[[column_name]], <span class="hljs-number">0.25</span>)
+  Q3 &lt;- quantile(data[[column_name]], <span class="hljs-number">0.75</span>)
+  
+  <span class="hljs-comment"># calculate the interquartile</span>
+  IQR &lt;- Q3 - Q1
+  
+  <span class="hljs-comment"># Calculate the lower and upper bounds</span>
+  lower_bound &lt;- Q1 - <span class="hljs-number">1.5</span> * IQR
+  upper_bound &lt;- Q3 + <span class="hljs-number">1.5</span> * IQR
+  
+  <span class="hljs-comment">#identify and remove the outlines</span>
+  outliers&lt;- data[[column_name]] &lt; lower_bound | data[[column_name]] &gt; upper_bound
+
+  
+  <span class="hljs-comment"># make sure there is no outliers</span>
+  <span class="hljs-keyword">if</span> (all(outliers)) {
+    <span class="hljs-keyword">return</span>(data)
+  }
+  
+  
+  data[!outliers, ]
+}
+
+<span class="hljs-comment"># Remove outliers from the 'subscribers' and ‘video.views’</span>
+subscriber_vs_View &lt;- rmoutliers(subscriber_vs_View, <span class="hljs-string">"video.views"</span>)
+subscriber_vs_View &lt;- rmoutliers(subscriber_vs_View, <span class="hljs-string">"subscribers"</span>)</code></pre></div>
+<p><em>Make the linear model based on the table.</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3619" data-bs-target="#rcode-643E0F3619" aria-expanded="true" aria-controls="rcode-643E0F3619"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3619" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment"># make a linear regression model between video.views and subscribers using ggplots</span>
+ggplot(subscriber_vs_View, aes(x = subscribers / <span class="hljs-number">1e6</span>, y = video.views / <span class="hljs-number">1e9</span>)) +
+  geom_point() +
+  geom_smooth(formula = y ~ x, method = <span class="hljs-string">"lm"</span>, se = <span class="hljs-literal">T</span>) +
+  ggtitle(<span class="hljs-string">"Subscribers vs Video views"</span>) +
+  labs(x = <span class="hljs-string">"Numbers of Subscribers in million"</span>, y = <span class="hljs-string">"Number of video views in billions"</span>) +
+  ProjectTheme</code></pre></div>
+<p><img src="./project1_files/unnamed-chunk-19-1.png" width="672"></p>
+<p><em>Create a linear regression model based on the selected
+data</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3620" data-bs-target="#rcode-643E0F3620" aria-expanded="true" aria-controls="rcode-643E0F3620"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3620" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment"># summarize the linear regression model for variables of "video.views" and "subscribers"</span>
+summary(lm(video.views ~ subscribers, data = subscriber_vs_View))</code></pre></div>
+<pre><code class="hljs">## 
+## Call:
+## lm(formula = video.views ~ subscribers, data = subscriber_vs_View)
+## 
+## Residuals:
+##        Min         1Q     Median         3Q        Max 
+## -1.240e+10 -3.585e+09 -5.799e+08  2.646e+09  1.711e+10 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -1.297e+09  5.875e+08  -2.207   0.0276 *  
+## subscribers  5.194e+02  3.029e+01  17.148   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 4.92e+09 on 818 degrees of freedom
+## Multiple R-squared:  0.2644, Adjusted R-squared:  0.2635 
+## F-statistic: 294.1 on 1 and 818 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p>The chart above is a linear regression model, whichi is focusing on
+the relationship between the amount of subscribers and video views. On
+the chart, we can see that the ammount of subscribers and the video
+views make a linear relationship, which means that subscribers and video
+views are increasing with a certain ratio. After analyzing the model,
+the regression equation for these two variables appears to be,
+<em>video.views = 499.4 * subscribers - 9.969e+08</em>, and it seems
+that we are fail to reject this equation since the P-value is way less
+than 0.05. However, what type of YouTubers do these subscribers prefer?
+Does their level of education affect their preferences for different
+YouTubers?</p>
+</div>
+<div id="section-youtubers-creating-channel-types" class="section level2">
+<h2>YouTubers creating Channel Types</h2>
+<p><em>Select the columns we need for analyse and data
+cleaning.</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3621" data-bs-target="#rcode-643E0F3621" aria-expanded="true" aria-controls="rcode-643E0F3621"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3621" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment"># Select the relevant columns from YT</span>
+subscribersfromdifferentcountries &lt;- YT[c(<span class="hljs-string">"Youtuber"</span>, <span class="hljs-string">"subscribers"</span>, <span class="hljs-string">"channel_type"</span>, <span class="hljs-string">"Gross.tertiary.education.enrollment...."</span>)]
+
+<span class="hljs-comment"># Remove rows with missing values</span>
+subscribersfromdifferentcountries &lt;- na.omit(subscribersfromdifferentcountries)
+
+<span class="hljs-comment"># Change all the "nan" values in channel_type column to "missing"</span>
+subscribersfromdifferentcountries &lt;- mutate(subscribersfromdifferentcountries, channel_type = if_else(channel_type == <span class="hljs-string">"nan"</span>, <span class="hljs-string">"missing"</span>, channel_type))
+
+<span class="hljs-comment"># Sort the remaining rows in descending order in the number of subscribers.</span>
+subscribersfromdifferentcountries &lt;- subscribersfromdifferentcountries[order(-subscribersfromdifferentcountries$subscribers), ]
+
+<span class="hljs-comment"># select the top 15 channel types with the highest number of subscribers. </span>
+top_15_channels &lt;- head(subscribersfromdifferentcountries, <span class="hljs-number">15</span>)</code></pre></div>
+<p><em>Create a heatmap chart based on the selected data</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3622" data-bs-target="#rcode-643E0F3622" aria-expanded="true" aria-controls="rcode-643E0F3622"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3622" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment"># Create a ggplot using the 'top_15_channels'</span>
+ggplot(top_15_channels, aes(channel_type, Youtuber)) + 
+  geom_count(mapping = aes(size= subscribers / <span class="hljs-number">1e6</span>, color=Gross.tertiary.education.enrollment....)) +
+  ggtitle(<span class="hljs-string">"Subscribers for Youtubers by different channel"</span>) +
+  labs(x = <span class="hljs-string">"Channel Type"</span>) +
+  scale_color_continuous(low = <span class="hljs-string">"black"</span>, high = <span class="hljs-string">"blue"</span>, name = <span class="hljs-string">"Enrollment %"</span>) +
+  scale_size_continuous(range = c(<span class="hljs-number">1</span>, <span class="hljs-number">10</span>), name = <span class="hljs-string">"# of Subscribers in millions"</span>) +
+  theme(
+    plot.title = element_text(colour = <span class="hljs-string">"darkblue"</span>),
+    axis.text.x = element_text(angle = <span class="hljs-number">20</span>, hjust = <span class="hljs-number">1</span>),
+    panel.background = element_rect(fill = <span class="hljs-string">"lightblue"</span>),        
+  ) +
+  ProjectTheme</code></pre></div>
+<p><img src="./project1_files/unnamed-chunk-22-1.png" width="672"></p>
+<p><br> The chart above is a heatmap, which shows the distributed
+relationship between the top 15 YouTubers and different channel
+types.The size and color of the circles in the heatmap are changed based
+on the numbers of subscribers each YouTuber has and their percentage
+with higher education. YouTubers with a large amount of subscribers with
+a higher proportion of high education are ‘Conmelon - Nursery Rhymes’
+and ‘YouTube Movies’, which belong to the Education and Music channel
+type. On the other hand, ‘T-Series’ owns the most number subscribers
+bust with the lowest higher education percentage and belongs to the
+Music channel type.A large number of people subscribe to these
+YouTubers. So, in which countries are these new subscribers located, or
+which countries has the most new youtubers?</p>
+</div>
+<div id="section-new-subscribers-all-over-the-world" class="section level2">
+<h2>new subscribers all over the world</h2>
+<p><em>Select the columns we need for analyse and data
+cleaning.</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3623" data-bs-target="#rcode-643E0F3623" aria-expanded="true" aria-controls="rcode-643E0F3623"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3623" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment"># Load world map data</span>
+worldmap &lt;- map_data(<span class="hljs-string">"world"</span>)
+
+<span class="hljs-comment"># Select the relevant columns from the 'YT'</span>
+new_subscriber &lt;- YT[c(<span class="hljs-string">"Country"</span>,<span class="hljs-string">"subscribers_for_last_30_days"</span>)]
+
+<span class="hljs-comment"># Rename "United State" and "United Kingdom"</span>
+new_subscriber$Country &lt;- recode(new_subscriber$Country, 
+  <span class="hljs-string">"United States"</span> = <span class="hljs-string">"USA"</span>,
+  <span class="hljs-string">"United Kingdom"</span> = <span class="hljs-string">"UK"</span>
+)
+
+<span class="hljs-comment"># Sum up the number of new subscribers based on different countries</span>
+new_subscriber &lt;-aggregate(subscribers_for_last_30_days ~ Country, data = new_subscriber, FUN = sum)
+
+<span class="hljs-comment"># Merge the world map data with the summed-up-subscriber data</span>
+map_with_new  &lt;- left_join(worldmap, new_subscriber, by = c(<span class="hljs-string">"region"</span> = <span class="hljs-string">"Country"</span>))</code></pre></div>
+<p><em>Create a world map and fill up the countries with colors based on
+the selected data</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3624" data-bs-target="#rcode-643E0F3624" aria-expanded="true" aria-controls="rcode-643E0F3624"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3624" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment"># Create a world map with layers using ggplots</span>
+ggplot(map_with_new, aes(long, lat, group = group)) +
+  geom_polygon(fill = <span class="hljs-string">"white"</span>, colour = <span class="hljs-string">"black"</span>) +
+  geom_polygon(aes(fill = subscribers_for_last_30_days / <span class="hljs-number">1e6</span>), colour = <span class="hljs-string">"black"</span>) +
+  scale_fill_gradient(
+    low = <span class="hljs-string">"lightblue"</span>, 
+    high = <span class="hljs-string">"darkblue"</span>,
+    name = <span class="hljs-string">"subscribers in million"</span>
+  ) + 
+  ggtitle(<span class="hljs-string">"New YouTube Subscribers by Country"</span>) +
+  labs(x = <span class="hljs-literal">NULL</span>,
+       y = <span class="hljs-literal">NULL</span>) +
+  theme_update() +
+  ProjectTheme</code></pre></div>
+<p><img src="./project1_files/unnamed-chunk-24-1.png" width="1440"></p>
+<p>The chart above is a world map, and the different color filled in
+different countries represent the number of new YouTube subscribers each
+country owned. the darker the color, the greater the number of new
+subscribers. Based on the map, the United States and India have the
+darkest colors, indicating that they have the greates number of new
+subscribers in 30 days. Following them are Indoesia, Rossia, and several
+countries in South America, including Brazil and Argentina. Their colors
+are lighter but still show that they have a significant number of new
+subscribers. After that you can see European countries, like China,
+European countries and Australia. I am curious about the income of
+YouTubers. How is the YouTuber income related to the number of
+subscribers? How much does it increase?</p>
+</div>
+<div id="section-new-subscribers-with-earnings" class="section level2">
+<h2>New subscribers with earnings</h2>
+<p><em>Select the columns we need for analyse and data
+cleaning.</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3625" data-bs-target="#rcode-643E0F3625" aria-expanded="true" aria-controls="rcode-643E0F3625"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3625" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment"># selecting specific columns from YT table</span>
+Channleearning &lt;- YT[c(<span class="hljs-string">"channel_type"</span>, <span class="hljs-string">"lowest_monthly_earnings"</span>, <span class="hljs-string">"highest_monthly_earnings"</span>, <span class="hljs-string">"lowest_yearly_earnings"</span>, <span class="hljs-string">"highest_yearly_earnings"</span>, <span class="hljs-string">"subscribers_for_last_30_days"</span>, <span class="hljs-string">"video_views_for_the_last_30_days"</span>)]
+
+<span class="hljs-comment"># Replace NaN with 0 in the subscribers_for_last_30_days column</span>
+Channleearning$subscribers_for_last_30_days[is.na(Channleearning$subscribers_for_last_30_days)] &lt;- <span class="hljs-number">0</span>
+
+<span class="hljs-comment"># Replace NaN with 0 in the video_views_for_the_last_30_days column</span>
+Channleearning$video_views_for_the_last_30_days[is.na(Channleearning$video_views_for_the_last_30_days)] &lt;- <span class="hljs-number">0</span>
+
+<span class="hljs-comment"># remove all the rows that has "0" in all five columns</span>
+Channleearning &lt;- Channleearning[
+  Channleearning$lowest_monthly_earnings &gt; <span class="hljs-number">0</span> &amp;
+  Channleearning$highest_monthly_earnings&gt; <span class="hljs-number">0</span> &amp;
+  Channleearning$lowest_yearly_earnings &gt; <span class="hljs-number">0</span> &amp;
+  Channleearning$highest_yearly_earnings &gt; <span class="hljs-number">0</span> &amp;
+  Channleearning$subscribers_for_last_30_days &gt; <span class="hljs-number">0</span>,
+]
+
+<span class="hljs-comment"># Change all the "nan" values in channel_type column to "others"</span>
+earning_channeltype &lt;- Channleearning %&gt;%
+  select(channel_type, lowest_monthly_earnings, highest_monthly_earnings, lowest_yearly_earnings, highest_yearly_earnings) %&gt;%
+  mutate(channel_type = if_else(channel_type == <span class="hljs-string">"nan"</span>, <span class="hljs-string">"missing"</span>, channel_type)) %&gt;%
+  filter(lowest_monthly_earnings &gt; <span class="hljs-number">0</span>,
+         highest_monthly_earnings &gt; <span class="hljs-number">0</span>,
+         lowest_yearly_earnings &gt; <span class="hljs-number">0</span>,
+         highest_yearly_earnings &gt; <span class="hljs-number">0</span>) %&gt;%
+  group_by(channel_type) %&gt;%
+  summarize(total_monlow = sum(lowest_monthly_earnings, na.rm = <span class="hljs-literal">TRUE</span>),
+            total_monhi = sum(highest_monthly_earnings, na.rm = <span class="hljs-literal">TRUE</span>),
+            total_yrlow = sum(lowest_yearly_earnings, na.rm = <span class="hljs-literal">TRUE</span>),
+            total_yrhi = sum(highest_yearly_earnings, na.rm = <span class="hljs-literal">TRUE</span>))
+
+Channleearning &lt;- Channleearning %&gt;%
+    left_join(earning_channeltype, by = <span class="hljs-string">"channel_type"</span>)
+
+<span class="hljs-comment"># Calculate logarithms</span>
+Channleearning &lt;- Channleearning %&gt;%
+  mutate(
+    logLEM = log(lowest_monthly_earnings),
+    logHEM = log(highest_monthly_earnings),
+    logLEY = log(lowest_yearly_earnings),
+    logHEY = log(highest_yearly_earnings)
+  )
+
+colnames(Channleearning) &lt;- c( <span class="hljs-string">"channel_type"</span>, <span class="hljs-string">"lowest earnings in million (mon)"</span>, <span class="hljs-string">"highest earnings in million (mon)"</span>, <span class="hljs-string">"lowest earnings in million (yr)"</span>, <span class="hljs-string">"highest earnings in million (yr)"</span>, <span class="hljs-string">"new subscribers in million (30 days)"</span>,<span class="hljs-string">"new views in million (30 days)"</span>, <span class="hljs-string">"lowest earnings in million by Channel (mon)"</span>,<span class="hljs-string">"highest earnings in million by Channel (mon)"</span>,<span class="hljs-string">"lowest earnings in million by Channel (yr)"</span>,<span class="hljs-string">"highest earnings in million by Channel (yr)"</span>, <span class="hljs-string">"logLEM"</span>,<span class="hljs-string">"logHEM"</span>,<span class="hljs-string">"logLEY"</span>,<span class="hljs-string">"logHEY"</span> )</code></pre></div>
+<p><em>Create a Shiny app to analyze the data above</em></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3626" data-bs-target="#rcode-643E0F3626" aria-expanded="true" aria-controls="rcode-643E0F3626"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3626" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment"># Define the UI for the Shiny app</span>
+ui &lt;- fluidPage(
+  
+  <span class="hljs-comment"># set up the panel for the app</span>
+  titlePanel(<span class="hljs-string">"How does new subscribers affect earnings"</span>),
+  sidebarLayout(
+    sidebarPanel(
+      
+      <span class="hljs-comment"># set up the selectInput for selecting a plot</span>
+      selectInput(<span class="hljs-string">"plot_select"</span>, <span class="hljs-string">"Select a chart:"</span>,
+                  choices = c(<span class="hljs-string">"New Subscribers vs Earnings"</span> = <span class="hljs-string">"plot1"</span>, <span class="hljs-string">"Proportion for new subscribers"</span> = <span class="hljs-string">"plot2"</span>, <span class="hljs-string">"Distribution for earning in different period"</span> = <span class="hljs-string">"plot3"</span>)),
+      conditionalPanel(
+        
+        <span class="hljs-comment"># set up the condition for the first plot</span>
+        condition = <span class="hljs-string">"input.plot_select == 'plot1'"</span>,
+        
+        <span class="hljs-comment"># set up the selectInput for selecting a Y variable</span>
+        selectInput(<span class="hljs-string">"y_variable"</span>, <span class="hljs-string">"Select your Y Variable:"</span>,
+                    choices = c(<span class="hljs-string">"lowest earnings in million (mon)"</span>, <span class="hljs-string">"highest earnings in million (mon)"</span>, <span class="hljs-string">"lowest earnings in million (yr)"</span>, <span class="hljs-string">"highest earnings in million (yr)"</span>)),
+        
+        <span class="hljs-comment"># set up the selectInput for selecting a x variable</span>
+        selectInput(<span class="hljs-string">"x_variable"</span>, <span class="hljs-string">"Select your X Variable:"</span>,
+                    choices = c(<span class="hljs-string">"new subscribers in million (30 days)"</span>, <span class="hljs-string">"new views in million (30 days)"</span>)),
+        
+        <span class="hljs-comment"># set up the selectInput for selecting a Channel Type and delete all the identical channel type</span>
+        selectInput(<span class="hljs-string">"color_variable"</span>, <span class="hljs-string">"Select a Channel Type:"</span>,
+                    choices = unique(Channleearning$channel_type))
+      ),
+      conditionalPanel(
+        
+        <span class="hljs-comment"># set up the condition for the second plot</span>
+        condition = <span class="hljs-string">"input.plot_select == 'plot2'"</span>,
+        
+        selectInput(<span class="hljs-string">"table_area"</span>, <span class="hljs-string">"Select your earning period:"</span>,
+                    choices = c(<span class="hljs-string">"lowest earnings in million by Channel (mon)"</span>,<span class="hljs-string">"highest earnings in million by Channel (mon)"</span>,<span class="hljs-string">"lowest earnings in million by Channel (yr)"</span>,<span class="hljs-string">"highest earnings in million by Channel (yr)"</span>))
+      ),
+      conditionalPanel(
+        
+        <span class="hljs-comment"># set up the condition for the third plot</span>
+        condition = <span class="hljs-string">"input.plot_select == 'plot3'"</span>,
+        
+        <span class="hljs-comment"># set up the selectInput for selecting the earning period</span>
+        selectInput(<span class="hljs-string">"earning"</span>, <span class="hljs-string">"Select your focusing earing period:"</span>,
+                    choices = c(<span class="hljs-string">"logLEM"</span>,<span class="hljs-string">"logHEM"</span>,<span class="hljs-string">"logLEY"</span>,<span class="hljs-string">"logHEY"</span>))
+      )
+    ),
+    mainPanel(
+      
+      <span class="hljs-comment"># set up the output</span>
+      plotOutput(<span class="hljs-string">"selected_plot"</span>),
+      
+      <span class="hljs-comment"># set up the output paragraph in all three plot</span>
+      conditionalPanel(
+        condition = <span class="hljs-string">"input.plot_select == 'plot1'"</span>,
+        verbatimTextOutput(<span class="hljs-string">"plot1_text"</span>)
+      ),
+      conditionalPanel(
+        condition = <span class="hljs-string">"input.plot_select == 'plot2'"</span>,
+        verbatimTextOutput(<span class="hljs-string">"plot2_text"</span>)
+      ),
+      conditionalPanel(
+        condition = <span class="hljs-string">"input.plot_select == 'plot3'"</span>,
+        verbatimTextOutput(<span class="hljs-string">"plot3_text"</span>)
+      )
+    )
+  )
+)
+
+
+server &lt;- <span class="hljs-keyword">function</span>(input, output) {
+  
+  <span class="hljs-comment"># Create a reactive expression for the plot</span>
+  output$selected_plot &lt;- renderPlot({
+    <span class="hljs-keyword">if</span> (input$plot_select == <span class="hljs-string">"plot1"</span>) {
+      channeltype_selection &lt;- input$color_variable
+      
+      <span class="hljs-comment"># clean the data based on the channel type</span>
+      Channleearning_filtered &lt;- 
+        Channleearning[Channleearning$channel_type == channeltype_selection, ]
+      
+      <span class="hljs-comment"># Create a linear regression line to analyze the relationship between estimated earning amount and new subscribers and views in 30 days</span>
+      ggplot(Channleearning_filtered, 
+             aes(x = .data[[input$x_variable]]/ <span class="hljs-number">1e6</span>, y = .data[[input$y_variable]]/ <span class="hljs-number">1e6</span>)) +
+        geom_point(shape = <span class="hljs-number">16</span>) +
+        geom_smooth(funcion = y ~ x, method = <span class="hljs-string">"lm"</span>) +
+        labs(
+          x = input$x_variable,
+          y = input$y_variable,
+          title = <span class="hljs-string">"New Subscribers or views vs Earnings"</span>
+        ) +
+        ProjectTheme
+    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (input$plot_select == <span class="hljs-string">"plot2"</span>) {
+      
+      <span class="hljs-comment"># Create a pie chart to analyze the distribution of estimated earnings by channel type</span>
+      ggplot(Channleearning, aes(x = <span class="hljs-string">""</span>, y = .data[[input$table_area]] / <span class="hljs-number">1e9</span>, fill = channel_type)) +
+        geom_bar(stat = <span class="hljs-string">"identity"</span>) +
+        coord_polar(theta = <span class="hljs-string">"y"</span>) +
+        theme_void() +
+        labs(
+          y = <span class="hljs-string">"Estimated earning in million"</span>,
+          title = <span class="hljs-string">"proportion for Estimated earning in different channel type"</span>
+        ) +
+        ProjectTheme 
+    } <span class="hljs-keyword">else</span> {
+      
+      <span class="hljs-comment"># Create a histogram and density plot for estimated earnings distribution</span>
+      ggplot(Channleearning, aes(x = .data[[input$earning]])) +
+        geom_histogram(aes(y=..density..), bins = <span class="hljs-number">100</span>, fill = <span class="hljs-string">"grey"</span>) +
+        geom_density(color = <span class="hljs-string">"royalblue4"</span>) +
+        ggtitle(<span class="hljs-string">"Distribution for earning in different period"</span>) +
+        labs(
+          x = input$earning
+        ) +
+        ProjectTheme
+    }
+    
+  })
+  
+  output$plot1_text &lt;- renderText({
+    <span class="hljs-keyword">if</span> (input$plot_select == <span class="hljs-string">"plot1"</span>) {
+      <span class="hljs-string">"The chart above is a linear regression plot which shows the estimate 
+      \nlinear relationship between the number of subscribers and video views in the 
+      \nlast 30 days and estimated earning over four different time periods. In these 
+      \nseries of plots, I have separated these regression graphs by different 
+      \nchannel types and different periods of estimate earning. The results show 
+      \nthat, although some of these plots may have insufficient data, 
+      \noverall, regardless of the channel type, the more subscribers or video views, 
+      \nthe more estimated earning."</span>
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-string">""</span>
+    }
+  })
+
+  <span class="hljs-comment"># Render text for the second plot only when plot 2 is selected</span>
+  output$plot2_text &lt;- renderText({
+    <span class="hljs-keyword">if</span> (input$plot_select == <span class="hljs-string">"plot2"</span>) {
+      <span class="hljs-string">"The plot above is a pie chart which abalyzes the estimated earning 
+      \ndiscribution of different channel types during different period. 
+      \nFrom the pie chart, we can see that while the earnings from each period 
+      \nare different, the Entertainment channel has the largest share of the 
+      \nestimate earning, which takes over a half of the pie. It seems that everyone 
+      \nis very interested in Entertainment. Next in terms of share is Music. The 
+      \nshares of the other types are relatively small. So, how much money do most 
+      \nYouTubers make?"</span>
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-string">""</span>
+    }
+  })
+
+  <span class="hljs-comment"># Render text for the third plot only when plot 3 is selected</span>
+  output$plot3_text &lt;- renderText({
+    <span class="hljs-keyword">if</span> (input$plot_select == <span class="hljs-string">"plot3"</span>) {
+      <span class="hljs-string">"Finally, let's take a look at the density distribution of estimated earning 
+      \nin different period. The plot above shows us a seriees of historgrams, which
+      \nshows us is the distribution of the earning estimation from different periods.
+      \nSince the different between each values iof data are too large and seems that 
+      \nthere is not a clear pattern , transforming the data of estimated earning in 
+      \ndifferent time period  using logarithm can make it easier to see the pattern.
+      \nIn these graphs, we can see that the majority of low estimated earnings are 
+      \nconcentrated around 10 to 15, and for the mojority of high estimated earning,
+      \nmost of them are concentrated arount 17"</span>
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-string">""</span>
+    }
+  })  
+  
+}
+shinyApp(ui, server)</code></pre></div>
+<iframe width="100%" height="400" class="shiny-frame" src="./project1_files/saved_resource.html"></iframe>
+<p>Based on the analysis above, with the development of the internet and
+the video industry, citizens in various countries, especially in
+countries like USA and India, are increasingly intent to watch videos
+online, such as Entertainment and music, for relieve the pressures from
+work and study. Some of them share their thoughts and interests in the
+video format with others using YouTube, even they can get some earnings
+from these videos.The more subscribers and views these YouTubers have,
+the more earnings they can get. However, looking at the chars, most of
+these earnings from these YouTubers is not very hight, and with
+lifestyle and pace changing and some new video platforms rise up like
+TikTok, some of these YouTubers and subscribers may switch their
+attentions on to different platforms for uploading or watching videos.
+the number of people continuing to use YouTube is decreasing. Therefore,
+for those who want to continue makeing earning fomr YouTube should think
+carefully before proceeding.</p>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("section-TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "mathjax-local/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+
+</div>
+  </div>
+
+
+</body></html>
